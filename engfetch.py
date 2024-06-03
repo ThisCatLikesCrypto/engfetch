@@ -63,11 +63,14 @@ def get_gpu_info():
         return ["GPU not found", ""]
 
 def get_primary_disk_usage():
-    devi = psutil.disk_partitions()[0].device
-    totalusage = psutil.disk_usage(devi).total
-    used = psutil.disk_usage(devi).used
-    free = psutil.disk_usage(devi).free
-    return ["Primary Disk: ", f"{str(used/totalusage*100)[:2]} ({str(totalusage)} total, {str(free)} free)"]
+    try:
+        devi = psutil.disk_partitions()[0].device
+        totalusage = psutil.disk_usage(devi).total
+        used = psutil.disk_usage(devi).used
+        free = psutil.disk_usage(devi).free
+        return ["Primary Disk: ", f"{str(used/totalusage*100)[:2]} ({str(totalusage)} total, {str(free)} free)"]
+    except:
+        return ["Primary Disk: ", "Borked :shrug:"]
 
 def get_uptime():
     timeSinceBoot = time.time() - psutil.boot_time()
@@ -82,6 +85,7 @@ def get_resolution():
     for monitor in m:
         if monitor.is_primary:
             return ["Primary Screen Resolution: ", f"{monitor.width}x{monitor.height}"]
+    return ["No Screen Detected ", ""]
 
 def linetoprint():
     ltp = [get_os_info(), get_uptime(), get_cpu_info(), get_memory_info(), get_gpu_info(), get_primary_disk_usage(), get_resolution()]
