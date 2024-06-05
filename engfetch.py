@@ -45,6 +45,8 @@ def get_cpu_info():
         cpu_info = get_cpu_win()
     else:
         cpu_info = platform.processor()
+        if cpu_info == "":
+            cpu_info = "Unknown"
     cores = psutil.cpu_count(logical=False)
     threads = psutil.cpu_count(logical=True)
     return ["CPU: ", f"{cpu_info}, {cores} cores ({threads} threads)"]
