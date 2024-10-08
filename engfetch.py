@@ -9,6 +9,7 @@ import os
 import GPUtil
 import subprocess
 from screeninfo import get_monitors
+from cpuinfo import get_cpu_info
 
 if platform.system() == "Linux":
     import distro
@@ -32,24 +33,16 @@ def get_os_info():
     else:
         return ["OS: ", un.system + " " + un.release + ""]
 
-def get_cpu_win():
-    try:
-        cpu_info = subprocess.check_output("wmic cpu get name", shell=True).strip().split(b"\n")[1].strip()
-        return cpu_info.decode()
-    except Exception as e:
-        return str(e)
+def get_cpu():
+    cpu_info = get_cpu_info()
 
-
-def get_cpu_info():
     if os.name == "nt":
-        cpu_info = get_cpu_win()
+        cpu_name = cpu_info['brand_raw']
     else:
-        cpu_info = platform.processor()
-        if cpu_info == "":
-            cpu_info = "Unknown"
+        cpu_name = cpu_info['brand']
     cores = psutil.cpu_count(logical=False)
     threads = psutil.cpu_count(logical=True)
-    return ["CPU: ", f"{cpu_info}, {cores} cores ({threads} threads)"]
+    return ["CPU: ", f"{cpu_name}, {cores} cores ({threads} threads)"]
 
 def get_memory_info():
     mem = psutil.virtual_memory()
@@ -62,7 +55,7 @@ def get_gpu_info():
         gpu = GPUtil.getGPUs()[0]
         return ["GPU: ", f"{gpu.name} ({int(round(gpu.memoryFree, 5))}MB/{int(round(gpu.memoryTotal, 5))}MB)"]
     except:
-        return ["GPU not found", ""]
+        return ["", ""]
 
 def get_primary_disk_usage():
     try:
@@ -72,7 +65,7 @@ def get_primary_disk_usage():
         free = psutil.disk_usage(devi).free
         return ["Primary Disk: ", f"{str(used/totalusage*100)[:2]} ({str(totalusage)} total, {str(free)} free)"]
     except:
-        return ["Primary Disk: ", "Borked :shrug:"]
+        return ["", ""]
 
 def get_uptime():
     timeSinceBoot = time.time() - psutil.boot_time()
@@ -87,10 +80,10 @@ def get_resolution():
     for monitor in m:
         if monitor.is_primary:
             return ["Primary Screen Resolution: ", f"{monitor.width}x{monitor.height}"]
-    return ["No Screen Detected ", ""]
+    return ["", ""]
 
 def linetoprint():
-    ltp = [get_os_info(), get_uptime(), get_cpu_info(), get_memory_info(), get_gpu_info(), get_primary_disk_usage(), get_resolution()]
+    ltp = [get_os_info(), get_uptime(), get_cpu(), get_memory_info(), get_gpu_info(), get_primary_disk_usage(), get_resolution()]
     return ltp
 
 #I swear this is ending up in so many of my python scripts, not just Stronge
