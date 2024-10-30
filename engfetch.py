@@ -36,9 +36,9 @@ def get_os_info():
 def get_cpu():
     cpu_info = get_cpu_info()
 
-    if os.name == "nt":
+    try:
         cpu_name = cpu_info['brand_raw']
-    else:
+    except KeyError:
         cpu_name = cpu_info['brand']
     cores = psutil.cpu_count(logical=False)
     threads = psutil.cpu_count(logical=True)
