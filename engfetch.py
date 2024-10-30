@@ -59,11 +59,20 @@ def get_gpu_info():
 
 def get_primary_disk_usage():
     try:
-        devi = psutil.disk_partitions()[0].device
-        totalusage = psutil.disk_usage(devi).total
-        used = psutil.disk_usage(devi).used
-        free = psutil.disk_usage(devi).free
-        return ["Primary Disk: ", f"{str(used/totalusage*100)[:2]} ({str(totalusage)} total, {str(free)} free)"]
+        if os.name == "nt":
+            devi = psutil.disk_partitions()[0].device
+            totalusage = psutil.disk_usage(devi).total
+            used = psutil.disk_usage(devi).used
+            free = psutil.disk_usage(devi).free
+            print(used, totalusage, free, devi)
+            return ["Primary Disk: ", f"{str(used/totalusage*100)[:2]} ({str(totalusage)} total, {str(free)} free)"]
+        else:
+            devi = psutil.disk_partitions()[0].device
+            mountpoint = psutil.disk_partitions()[0].mountpoint
+            totalusage = psutil.disk_usage(devi).total
+            used = psutil.disk_usage(devi).used
+            free = psutil.disk_usage(devi).free
+            return ["Primary Disk: ", f"{devi} ({mountpoint}) | {str(used/totalusage*100)[:2]} ({str(totalusage)} total, {str(free)} free)"]
     except:
         return ["", ""]
 
